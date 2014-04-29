@@ -1,27 +1,55 @@
-set nu
-set ru
-noremap : ;
-noremap ; :
-"noremap ,ev command! :tabnew $HOME/.vimrc<CR>
-"noremap ,rv command! :!source $HOME/.vimrc<CR>
-noremap j gj
-noremap k gk
-
 syntax on
 set t_Co=256
-set expandtab
-set shiftwidth=2 softtabstop=2 tabstop=2
-set backspace=2
-set clipboard+=unnamed,autoselect
-"set cursorline
-set hlsearch
-set ignorecase
+set number
+set ruler
+set title
+set hidden
+set list
+set listchars=tab:»\ ,eol:¬
+set whichwrap=b,s,h,s,<,>,[,]
+set wildmenu
+set wildmode=list:full
 set smartindent
+set ignorecase
+set wrapscan
+set noswapfile
+set nobackup
+set clipboard+=unnamed,autoselect
+set hlsearch
+set expandtab
+set shiftwidth=2 tabstop=2 softtabstop=2
+set scrolloff=20
+set backspace=indent,eol,start
+set showmatch
+set showcmd
+set showmode
 set mouse=a
 set ttymouse=xterm2
-set wildmenu
-set wildmode=full
 set laststatus=2
+
+" key mapping
+inoremap jj <ESC>
+noremap <Space>h  ^
+noremap <Space>l  $
+nnoremap <Space>/  *
+noremap <Space>m %
+noremap k gk
+noremap j gj
+noremap gk k
+noremap gj j
+nnoremap : ;
+nnoremap ; :
+noremap <Down> gj
+noremap <UP> gk
+noremap ,ev :<C-u>tabnew $HOME/.vimrc<CR>
+noremap ,rv :<C-u>source $HOME/.vimrc<CR>
+nnoremap <F3> :<C-u>setlocal relativenumber!<CR>
+
+" カーソル行を強調表示しない
+set nocursorline
+" 挿入モードの時のみ、カーソル行をハイライトする
+autocmd InsertEnter,InsertLeave * set cursorline!
+
 let mapleader = ","
 
 if has('vim_starting')
@@ -132,4 +160,4 @@ let g:lightline = {}
 let g:lightline.colorscheme = 'hybrid'
 "let g:lightline_hybrid_style = "plain"
 
-source ~/encode.vim
+"source ~/encode.vim

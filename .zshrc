@@ -3,8 +3,11 @@
 ## 基本設定 {{{
 # http://yuyunko.hatenablog.com/entry/20101112/1289551129
 
+# path
+fpath=(~/.zsh/completion $fpath)
+
 # PAGER
-export PAGER=lv
+export PAGER='less -R'
 
 # LANG 設定
 export LANG=ja_JP.UTF-8
@@ -292,6 +295,7 @@ alias ll='ls -l'
 alias la='ls -a'
 alias lla='ls -al'
 # alias lla='ls -a -l | lv'
+alias vi=vim
 
 
 # }}}
@@ -309,7 +313,7 @@ function google() {
 local str opt
 if [ $ != 0 ]; then
 	for i in $*; do
-		str="$str+$i"
+	str="$str+$i"
 	done
 	str=`echo $str | sed 's/^\+//'`
 	opt='search?num=50&hl=ja&lr=lang_ja'
@@ -539,6 +543,20 @@ esac
 # esac
 # }}}
 #######################################################################################################
+
+if [ -x /usr/bin/dircolors ]; then
+    test -r ~/cygwin/.dircolors && eval "$(dircolors -b ~/cygwin/.dircolors)" || eval "$(dircolors -b)"
+    #alias dir='dir --color=auto'
+    #alias vdir='vdir --color=auto'
+    alias ls='ls -hF --color=auto'                 # classify files in colour
+    alias dir='ls --color=auto --format=vertical'
+    alias vdir='ls --color=auto --format=long'
+ 
+    alias grep='grep --color=auto'
+    alias fgrep='fgrep --color=auto'
+    alias egrep='egrep --color=auto'
+fi
+
 #{{{ 個人用設定ファイルがあればそれを読み込む
 if [ -e ~/.zshrc_private ]; then
 	source ~/.zshrc_private
