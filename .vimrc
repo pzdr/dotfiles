@@ -36,7 +36,8 @@ inoremap <C-C> <ESC>
 inoremap jj <ESC>
 noremap <Space>h  ^
 noremap <Space>l  $
-nnoremap <Space>/  *
+nnoremap <Space>/  *<C-o>
+nnoremap g<Space>/  g*<C-o>
 noremap <Space>m %
 noremap k gk
 noremap j gj
@@ -44,6 +45,10 @@ noremap gk k
 noremap gj j
 nnoremap : ;
 nnoremap ; :
+vnoremap : ;
+vnoremap ; :
+cnoremap : ;
+cnoremap ; :
 noremap <Down> gj
 noremap <UP> gk
 if has('unix') || has('macunix') || has('win32unix')
@@ -63,6 +68,7 @@ autocmd InsertEnter,InsertLeave * set cursorline!
 
 let mapleader = ","
 
+""" neobundle
 if has('vim_starting')
   set nocompatible               " Be iMproved
 
@@ -76,16 +82,6 @@ call neobundle#begin(expand('~/.vim/bundle/'))
 NeoBundleFetch 'Shougo/neobundle.vim'
 
 
-"binaymode
-augroup BinaryXXD
-  autocmd!
-  autocmd BufReadPre  *.bin,*.exe let &binary =1
-  autocmd BufReadPost * if &binary | silent %!xxd -g 1
-  autocmd BufReadPost * set ft=xxd | endif
-  autocmd BufWritePre * if &binary | %!xxd -r | endif
-  autocmd BufWritePost * if &binary | silent %!xxd -g 1
-  autocmd BufWritePost * set nomod | endif
-augroup END
 
 """ for cygwin
 let s:is_windows =  has('win16') || has('win32') || has('win64')
@@ -141,10 +137,16 @@ NeoBundleLazy 'vim-jp/cpp-vim', {
 NeoBundle 'Shougo/neocomplete.vim'
 NeoBundle 'Shougo/unite.vim'
 NeoBundle 'Shougo/neomru.vim'
+" git
 NeoBundle 'tpope/vim-fugitive'
 "NeoBundle 'airblade/vim-gitgutter'
 NeoBundle 'vim-jp/vimdoc-ja'
 NeoBundle 'osyo-manga/vim-over'
+" markdown
+NeoBundle 'rcmdnk/vim-markdown'
+NeoBundle 'tyru/open-browser.vim'
+NeoBundle 'kannokanno/previm'
+NeoBundle 'h1mesuke/vim-alignta'
 " colorscheme
 NeoBundle 'nanotech/jellybeans.vim'
 NeoBundle 'w0ng/vim-hybrid'
@@ -161,8 +163,10 @@ NeoBundle 'sjl/badwolf'
 NeoBundle 'cocopon/colorswatch.vim'
 
 call neobundle#end()
+filetype plugin indent on
+"""
 
-" Unite
+""" Unite
 let g:unite_enable_start_insert=1
 let g:unite_source_history_yank_enable =1
 let g:unite_source_file_mru_limit = 200
@@ -171,10 +175,12 @@ nnoremap <silent> ,ub :<C-u>Unite buffer<CR>
 nnoremap <silent> ,uf :<C-u>UniteWithBufferDir -buffer-name=files file<CR>
 nnoremap <silent> ,ur :<C-u>Unite -buffer-name=register register<CR>
 nnoremap <silent> ,uu :<C-u>Unite file_mru buffer<CR>
+"""
 
-" vim-over
+""" vim-over
 cnoreabb <silent><expr>s getcmdtype()==':' && getcmdline()=~'^s' ? 'OverCommandLine<CR><C-u>%s/<C-r>=get([], getchar(0), '')<CR>' : 's'
 nnoremap <Leader>o :OverCommandLine %s/<CR>
+"""
 
 "------------------------------------
 " neocomplete
@@ -228,15 +234,16 @@ inoremap <expr><C-e>  neocomplete#cancel_popup()
 inoremap <expr><Space> pumvisible() ? neocomplete#close_popup() : "\<Space>"
 
 " autocmd FileType python setlocal omnifunc=pythoncomplete#Complete
+"""
 
-filetype plugin indent on
-
+""" colorscheme
 let g:edark_current_line = 1
 let g:edark_ime_cursor = 1
 let g:edark_insert_status_line = 1
 colorscheme badwolf
+"""
 
-" for lightline.vim --------------------\
+""" for lightline.vim
 let g:lightline = {
       \ 'colorscheme': 'wombat',
       \ 'component': {
@@ -246,11 +253,47 @@ let g:lightline = {
       \ 'subseparator': { 'left': "\u2b81", 'right': "\u2b83" },
       \ }
 "let g:lightline_hybrid_style = "plain"
+"""
 
-" for C++
+""" markdown
+" vim-markdown
+let g:vim_markdown_folding_disabled=1
+let g:vim_markdown_no_default_key_mappings=1
+let g:vim_markdown_math=1
+
+" Previm
+let g:previm_enable_realtime = 1
+let g:previm_open_cmd = ''
+nnoremap [previm] <Nop>
+nmap <Space>p [previm]
+nnoremap <silent> [previm]o :<C-u>PrevimOpen<CR>
+nnoremap <silent> [previm]r :call previm#refresh()<CR>
+
+augroup Markdown
+  autocmd!
+  autocmd BufNewFile,BufRead *.{md,mdwn,mkd,mkdn,mark*} set filetype=markdown
+  autocmd BufEnter *.markdown let s:updatetime_origin = &updatetime | let &updatetime = 10000
+  autocmd BufLeave *.markdown let &updatetime = get(s:, 'updatetime_origin', &updatetime)
+augroup END
+"""
+
+""" for C++
 augroup cpp-path
     autocmd!
     autocmd FileType cpp setlocal path=.,/usr/include,/usr/local/include,/usr/lib/c++/v1
 augroup END
+"""
+
+""" binaymode
+augroup BinaryXXD
+  autocmd!
+  autocmd BufReadPre  *.bin,*.exe let &binary =1
+  autocmd BufReadPost * if &binary | silent %!xxd -g 1
+  autocmd BufReadPost * set ft=xxd | endif
+  autocmd BufWritePre * if &binary | %!xxd -r | endif
+  autocmd BufWritePost * if &binary | silent %!xxd -g 1
+  autocmd BufWritePost * set nomod | endif
+augroup END
+"""
 
 "source ~/encode.vim
