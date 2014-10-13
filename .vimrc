@@ -1,14 +1,18 @@
 syntax on
+set runtimepath^=$HOME/.vim
+set runtimepath+=$HOME/.vim/after
+set shellslash
 set t_Co=256
 set number
 set ruler
-set title
+"set title
 set hidden
 set list
-set listchars=tab:»\ ,eol:¬
+"set listchars=tab:≫\ ,eol:￢
+set listchars=tab:^\ ,eol:\
 set whichwrap=b,s,h,s,<,>,[,]
 set wildmenu
-set wildmode=list:full
+set wildmode=list,full
 set smartindent
 set ignorecase
 set wrapscan
@@ -28,6 +32,7 @@ set ttymouse=xterm2
 set laststatus=2
 
 " key mapping
+inoremap <C-C> <ESC>
 inoremap jj <ESC>
 noremap <Space>h  ^
 noremap <Space>l  $
@@ -41,8 +46,14 @@ nnoremap : ;
 nnoremap ; :
 noremap <Down> gj
 noremap <UP> gk
-noremap ,ev :<C-u>tabnew $HOME/.vimrc<CR>
-noremap ,rv :<C-u>source $HOME/.vimrc<CR>
+if has('unix') || has('macunix') || has('win32unix')
+  noremap ,ev :<C-u>tabnew $HOME/.vimrc<CR>
+  noremap ,rv :<C-u>source $HOME/.vimrc<CR>
+elseif has('win32') || has('win64')
+  noremap ,ev :<C-u>tabnew $HOME/_vimrc<CR>
+  noremap ,eg :<C-u>tabnew $HOME/_gvimrc<CR>
+  noremap ,rv :<C-u>source $HOME/_vimrc<CR>
+endif
 nnoremap <F3> :<C-u>setlocal relativenumber!<CR>
 
 " カーソル行を強調表示しない
@@ -85,13 +96,13 @@ if s:is_cygwin
   if &term =~# '^xterm' && &t_Co < 256
     set t_Co=256  " Extend terminal color of xterm
   endif
-  if &term !=# 'cygwin'  " not in command prompt
-    " Change cursor shape depending on mode
-    let &t_ti .= "\e[1 q"
-    let &t_SI .= "\e[5 q"
-    let &t_EI .= "\e[1 q"
-    let &t_te .= "\e[0 q"
-  endif
+"  if &term !=# 'cygwin'  " not in command prompt
+"    " Change cursor shape depending on mode
+"    let &t_ti .= "\e[1 q"
+"    let &t_SI .= "\e[5 q"
+"    let &t_EI .= "\e[1 q"
+"    let &t_te .= "\e[0 q"
+"  endif
 endif
 
 if &t_Co >= 16
@@ -124,8 +135,14 @@ if !s:is_windows && s:is_cui
 endif
 """ end cygwin
 
+NeoBundleLazy 'vim-jp/cpp-vim', {
+            \ 'autoload' : {'filetypes' : 'cpp'}
+            \ }
+NeoBundle 'Shougo/neocomplete.vim'
+NeoBundle 'Shougo/unite.vim'
+NeoBundle 'Shougo/neomru.vim'
 NeoBundle 'tpope/vim-fugitive'
-NeoBundle 'airblade/vim-gitgutter'
+"NeoBundle 'airblade/vim-gitgutter'
 NeoBundle 'vim-jp/vimdoc-ja'
 NeoBundle 'osyo-manga/vim-over'
 " colorscheme
@@ -145,9 +162,72 @@ NeoBundle 'cocopon/colorswatch.vim'
 
 call neobundle#end()
 
+" Unite
+let g:unite_enable_start_insert=1
+let g:unite_source_history_yank_enable =1
+let g:unite_source_file_mru_limit = 200
+nnoremap <silent> ,uy :<C-u>Unite history/yank<CR>
+nnoremap <silent> ,ub :<C-u>Unite buffer<CR>
+nnoremap <silent> ,uf :<C-u>UniteWithBufferDir -buffer-name=files file<CR>
+nnoremap <silent> ,ur :<C-u>Unite -buffer-name=register register<CR>
+nnoremap <silent> ,uu :<C-u>Unite file_mru buffer<CR>
+
 " vim-over
 cnoreabb <silent><expr>s getcmdtype()==':' && getcmdline()=~'^s' ? 'OverCommandLine<CR><C-u>%s/<C-r>=get([], getchar(0), '')<CR>' : 's'
 nnoremap <Leader>o :OverCommandLine %s/<CR>
+
+"------------------------------------
+" neocomplete
+"------------------------------------
+set completeopt-=preview
+"Note: This option must set it in .vimrc(_vimrc).  NOT IN .gvimrc(_gvimrc)!
+" Disable AutoComplPop.
+let g:acp_enableAtStartup = 0
+" Use neocomplete.
+let g:neocomplete#enable_at_startup = 1
+" Use smartcase.
+let g:neocomplete#enable_smart_case = 1
+" Set minimum syntax keyword length.
+let g:neocomplete#sources#syntax#min_keyword_length = 4
+let g:neocomplete#auto_completion_start_length = 4
+let g:neocomplete#lock_buffer_name_pattern = '\*ku\*'
+" 補完が止まった際に、スキップする長さを短くする
+let g:neocomplete#skip_auto_completion_time = '0.2'
+" 使用する補完の種類を減らす
+" 現在のSourceの取得は `:echo keys(neocomplete#variables#get_sources())`
+" デフォルト: ['file', 'tag', 'neosnippet', 'vim', 'dictionary', 'omni', 'member', 'syntax', 'include', 'buffer', 'file/include']
+let g:neocomplete#sources = {
+  \ '_' : ['vim', 'omni', 'include', 'buffer', 'file/include']
+  \ }
+
+" 特定のタイミングでのみ使う補完は、直接呼び出すようにする
+inoremap <expr><C-X><C-F>  neocomplete#start_manual_complete('file')
+inoremap <expr><C-X><C-K>  neocomplete#start_manual_complete('dictionary')
+inoremap <expr><C-X>s      neocomplete#start_manual_complete('neosnippet')
+" Plugin key-mappings.
+inoremap <expr><C-g>     neocomplete#undo_completion()
+inoremap <expr><C-l>     neocomplete#complete_common_string()
+
+" Recommended key-mappings.
+" <CR>: close popup and save indent.
+inoremap <silent> <CR> <C-r>=<SID>my_cr_function()<CR>
+function! s:my_cr_function()
+  " return neocomplete#close_popup() . "\<CR>"
+  " For no inserting <CR> key.
+  return pumvisible() ? neocomplete#close_popup() : "\<CR>"
+endfunction
+" <TAB>: completion.
+inoremap <expr><TAB>  pumvisible() ? "\<C-n>" : "\<TAB>"
+" <C-h>, <BS>: close popup and delete backword char.
+inoremap <expr><C-h> neocomplete#smart_close_popup()."\<C-h>"
+inoremap <expr><BS> neocomplete#smart_close_popup()."\<C-h>"
+inoremap <expr><C-y>  neocomplete#close_popup()
+inoremap <expr><C-e>  neocomplete#cancel_popup()
+
+" Close popup by <Space>.
+inoremap <expr><Space> pumvisible() ? neocomplete#close_popup() : "\<Space>"
+
+" autocmd FileType python setlocal omnifunc=pythoncomplete#Complete
 
 filetype plugin indent on
 
@@ -156,8 +236,21 @@ let g:edark_ime_cursor = 1
 let g:edark_insert_status_line = 1
 colorscheme badwolf
 
-let g:lightline = {}
-let g:lightline.colorscheme = 'hybrid'
+" for lightline.vim --------------------\
+let g:lightline = {
+      \ 'colorscheme': 'wombat',
+      \ 'component': {
+      \   'readonly': '%{&readonly?"\u2b64":""}',
+      \ },
+      \ 'separator': { 'left': "\u2b80", 'right': "\u2b82" },
+      \ 'subseparator': { 'left': "\u2b81", 'right': "\u2b83" },
+      \ }
 "let g:lightline_hybrid_style = "plain"
+
+" for C++
+augroup cpp-path
+    autocmd!
+    autocmd FileType cpp setlocal path=.,/usr/include,/usr/local/include,/usr/lib/c++/v1
+augroup END
 
 "source ~/encode.vim

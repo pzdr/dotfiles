@@ -3,6 +3,9 @@
 ## 基本設定 {{{
 # http://yuyunko.hatenablog.com/entry/20101112/1289551129
 
+export PATH="/usr/local/arm-tools/bin:$PATH"
+WORDCHARS='*?_-.[]~=&;!#$%^(){}<>'
+
 # path
 fpath=(~/.zsh/completion $fpath)
 
@@ -42,6 +45,13 @@ local PURPLE=$'%{\e[1;35m%}'
 local LIGHT_BLUE=$'%{\e[1;36m%}'
 local WHITE=$'%{\e[1;37m%}'
 
+# history search
+autoload history-search-end
+zle -N history-beginning-search-backward-end history-search-end
+zle -N history-beginning-search-forward-end history-search-end
+bindkey "^P" history-beginning-search-backward-end
+bindkey "^N" history-beginning-search-forward-end
+
 # ビープ音を鳴らさないようにする
 setopt NO_beep
 
@@ -68,6 +78,16 @@ RPROMPT="%{$fg_bold[white]%}[%{$reset_color%}%{$fg[cyan]%}%~%{$reset_color%}%{$f
 # setopt correctしてるときに使われるプロンプト。
 SPROMPT="%{$fg_bold[red]%}correct%{$reset_color%}: %R -> %r ? "
 
+# repository info
+autoload -Uz vcs_info
+setopt prompt_subst
+zstyle ':vcs_info:git:*' check-for-changes true
+zstyle ':vcs_info:git:*' stagedstr "%F{yellow}!"
+zstyle ':vcs_info:git:*' unstagedstr "%F{red}+"
+zstyle ':vcs_info:*' formats "%F{green}%c%u[%b]%f"
+zstyle ':vcs_info:*' actionformats '[%b|%a]'
+precmd () { vcs_info }
+RPROMPT=$RPROMPT'${vcs_info_msg_0_}'
 # 'dircolors -p'で出力されるものに手を加えて保存したものを読み込んでる。
 if [ -f ~/.dir_colors ]; then
 	eval `dircolors -b ~/.dir_colors`
