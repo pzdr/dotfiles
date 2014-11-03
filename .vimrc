@@ -56,11 +56,13 @@ set backspace=indent,eol,start " バックスペースでなんでも消せる�
 set mouse=a
 set ttymouse=xterm2
 set laststatus=2
-   
+
+
 " カーソル行を強調表示しない
 set nocursorline
 " 挿入モードの時のみ、カーソル行をハイライトする
-autocmd BufEnter,InsertEnter,InsertLeave * set cursorline!
+autocmd InsertEnter * set cursorline
+autocmd InsertLeave * set nocursorline
 
 " key mapping
 inoremap <C-C> <ESC>
