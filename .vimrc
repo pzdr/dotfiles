@@ -1,3 +1,8 @@
+"release autogroup in MyAutoCmd
+augroup MyAutoCmd
+    autocmd!
+augroup END
+
 syntax on
 set runtimepath^=$HOME/.vim
 set runtimepath+=$HOME/.vim/after
@@ -13,17 +18,33 @@ set colorcolumn=80
 set t_vb=
 set novisualbell
 set showcmd
-set showmode
+set noshowmode
 set splitbelow
 set splitright
+"set fileencodings=iso-2022-jp,utf-8,euc-jp,ucs-2le,ucs-2,cp932
 "set title
 set list
-"set listchars=tab:≫\ ,eol:￢
-set listchars=tab:^\ ,eol:\             
+"set listchars=tab:>.,trail:_,eol:\\,extends:>,precedes:<,nbsp:%
+set listchars=tab:\|\ ,trail:_,eol:$,extends:>,precedes:<,nbsp:%
 set whichwrap=b,s,h,s,<,>,[,]
 set wildmenu
 set wildmode=list,full
 set smartindent
+"set ambiwidth=double
+
+"全角スペースをハイライト表示
+function! ZenkakuSpace()
+    highlight ZenkakuSpace cterm=reverse ctermfg=DarkMagenta gui=reverse guifg=DarkMagenta
+endfunction
+
+if has('syntax')
+    augroup ZenkakuSpace
+        autocmd!
+        autocmd ColorScheme * call ZenkakuSpace()
+        autocmd VimEnter,WinEnter * match ZenkakuSpace /　/
+    augroup END
+    call ZenkakuSpace()
+endif
 
 """ search
 set ignorecase
@@ -50,13 +71,14 @@ set showmatch           " 対応する括弧などをハイライト表示する
 set matchtime=3         " 対応括弧のハイライト表示を3秒にする
 set matchpairs& matchpairs+=<:> " 対応括弧に'<'と'>'のペアを追加
 set backspace=indent,eol,start " バックスペースでなんでも消せるようにする
+imap <F11> <nop>
+set pastetoggle=<F11>
 """
 
 """ mouse
-set mouse=a
+"set mouse=a
 set ttymouse=xterm2
 set laststatus=2
-
 
 " カーソル行を強調表示しない
 set nocursorline
@@ -73,6 +95,8 @@ noremap <Space>l  $
 nnoremap <Space>/  *<C-o>
 nnoremap g<Space>/  g*<C-o>
 noremap <Space>m %
+nnoremap x "_x
+nnoremap D "_D
 noremap k gk
 noremap j gj
 noremap gk k
@@ -97,6 +121,16 @@ nnoremap <S-Left>  <C-w><<CR>
 nnoremap <S-Right> <C-w>><CR>
 nnoremap <S-Up>    <C-w>-<CR>
 nnoremap <S-Down>  <C-w>+<CR>
+" command mode
+cnoremap <C-a> <Home>
+cnoremap <C-f> <Right>
+cnoremap <C-b> <Left>
+cnoremap <C-e> <End>
+cnoremap <C-d> <Del>
+cnoremap <C-p> <Up>
+cnoremap <C-n> <Down>
+cnoremap <M-b> <S-Left>
+cnoremap <M-f> <S-Right>
 
 if has('unix') || has('macunix') || has('win32unix')
     noremap ,ev :<C-u>tabnew $HOME/.vimrc<CR>
@@ -110,6 +144,28 @@ nnoremap <F3> :<C-u>setlocal relativenumber!<CR>
 
 
 let mapleader = ","
+
+"" {{{ python include path
+"" PATHの自動更新関数
+"" | 指定された path が $PATH に存在せず、ディレクトリとして存在している場合
+"" | のみ $PATH に加える
+"function! IncludePath(path)
+"  " define delimiter depends on platform
+"  if has('win16') || has('win32') || has('win64')
+"    let delimiter = ";"
+"  else
+"    let delimiter = ":"
+"  endif
+"  let pathlist = split($PATH, delimiter)
+"  if isdirectory(a:path) && index(pathlist, a:path) == -1
+"    let $PATH=a:path.delimiter.$PATH
+"  endif
+"endfunction
+"
+"" ~/.pyenv/shims を $PATH に追加する
+"" これを行わないとpythonが正しく検索されない
+"call IncludePath(expand("~/.anyenv/envs/pyenv/shims"))
+""""}}}
 
 """ neobundle
 if has('vim_starting')
@@ -280,7 +336,28 @@ NeoBundleLazy 'osyo-manga/vim-marching', {
         \ 'depends' : ['Shougo/vimproc.vim', 'osyo-manga/vim-reunions'],
         \ 'autoload' : {'filetypes' : ['c', 'cpp']}
         \ }
+" {{{ neosnippet
 NeoBundle 'Shougo/neosnippet'
+NeoBundle 'Shougo/neosnippet-snippets'
+" Plugin key-mappings.
+imap <C-k>     <Plug>(neosnippet_expand_or_jump)
+smap <C-k>     <Plug>(neosnippet_expand_or_jump)
+xmap <C-k>     <Plug>(neosnippet_expand_target)
+
+" SuperTab like snippets behavior.
+imap <expr><TAB> neosnippet#expandable_or_jumpable() ?
+\ "\<Plug>(neosnippet_expand_or_jump)"
+\: pumvisible() ? "\<C-n>" : "\<TAB>"
+smap <expr><TAB> neosnippet#expandable_or_jumpable() ?
+\ "\<Plug>(neosnippet_expand_or_jump)"
+\: "\<TAB>"
+
+" For snippet_complete marker.
+if has('conceal')
+  set conceallevel=2 concealcursor=i
+endif
+" }}}
+
 NeoBundle 'Shougo/unite.vim'
 NeoBundle 'Shougo/neomru.vim'
 NeoBundle 'thinca/vim-quickrun'
@@ -288,13 +365,13 @@ NeoBundle 'tpope/vim-surround'
 
 " {{{ vim-indent-guides
 NeoBundle "nathanaelkane/vim-indent-guides"
-" let g:indent_guides_enable_on_vim_startup = 1 2013-06-24 10:00 削除
+let g:indent_guides_enable_on_vim_startup = 1 "2013-06-24 10:00 削除
 let s:hooks = neobundle#get_hooks("vim-indent-guides")
 function! s:hooks.on_source(bundle)
     let g:indent_guides_auto_colors=0
     let g:indent_guides_guide_size = 1
     let g:indent_guides_start_level= 1
-    IndentGuidesEnable " 2013-06-24 10:00 追記
+    "IndentGuidesEnable " 2013-06-24 10:00 追記
 endfunction
 autocmd VimEnter,Colorscheme * :hi IndentGuidesOdd   ctermbg=235
 autocmd VimEnter,Colorscheme * :hi IndentGuidesEven  ctermbg=240
@@ -319,6 +396,13 @@ NeoBundleLazy 'majutsushi/tagbar', {
 nmap <Leader>t :TagbarToggle<CR>
 " }}}
 
+" {{{ vim-django-support
+" DJANGO_SETTINGS_MODULE を自動設定
+NeoBundleLazy "lambdalisue/vim-django-support", {
+      \ "autoload": {
+      \   "filetypes": ["python", "python3", "djangohtml"]
+      \ }}
+
 " {{{ jedi-vim
 NeoBundleLazy "davidhalter/jedi-vim", {
       \ "autoload": {
@@ -338,7 +422,7 @@ function! s:hooks.on_source(bundle)
   " quickrunと被るため大文字に変更
   let g:jedi#rename_command = '<Leader>R'
   " gundoと被るため大文字に変更 (2013-06-24 10:00 追記）
-  "let g:jedi#goto_command = '<Leader>G'
+  let g:jedi#goto_command = '<Leader>G'
 endfunction
 
 autocmd FileType python setlocal omnifunc=jedi#completions
@@ -351,7 +435,16 @@ endif
 
 " let g:neocomplete#force_omni_input_patterns.python = '\%([^. \t]\.\|^\s*@\|^\s*from\s.\+import \|^\s*from \|^\s*import \)\w*'
 let g:neocomplete#force_omni_input_patterns.python = '\h\w*\|[^. \t]\.\w*'
+" }}}
 
+" {{{ vim-pyenv
+" pyenv 処理用に vim-pyenv を追加
+" Note: depends が指定されているため jedi-vim より後にロードされる
+NeoBundleLazy "lambdalisue/vim-pyenv", {
+      \ "depends": ['davidhalter/jedi-vim'],
+      \ "autoload": {
+      \   "filetypes": ["python", "python3", "djangohtml"]
+      \ }}
 " }}}
 
 " git
@@ -476,12 +569,12 @@ let g:quickrun_config._ = {
 "let g:edark_current_line = 1
 "let g:edark_ime_cursor = 1
 "let g:edark_insert_status_line = 1
-colorscheme badwolf
+colorscheme hybrid
 """
 
 """ for lightline.vim
 let g:lightline = {
-        \ 'colorscheme': 'wombat',
+        \ 'colorscheme': 'hybrid',
         \ 'component': {
         \   'readonly': '%{&readonly?"\u2b64":""}',
         \ },
