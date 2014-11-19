@@ -537,18 +537,18 @@ fi
 
 # 起動時にscreen起動
 # ubuntuの場合 $TERM = screen-bce
-case "${OSTYPE}" in
-	freebsd*|darwin*)
-		if [ $TERM != "screen" ]; then
-			exec screen -S main -xRR
-		fi
-			;;
-	linux*)
-		if [ $TERM != "screen-bce" ]; then
-			exec byobu -S main -xRR
-		fi
-			;;
-esac
+#case "${OSTYPE}" in
+#    freebsd*|darwin*)
+#        if [ $TERM != "screen" ]; then
+#            exec screen -S main -xRR
+#        fi
+#        ;;
+#    linux*)
+#        if [ $TERM != "screen-bce" ]; then
+#            exec byobu -S main -xRR
+#        fi
+#        ;;
+#esac
 # case "${OSTYPE}" in
 #     freebsd*|darwin*)
 #         if [ $TERM != "screen" ]; then

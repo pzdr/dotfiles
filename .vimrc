@@ -254,7 +254,7 @@ function! s:hooks.on_source(bundle)
     " 現在のSourceの取得は `:echo keys(neocomplete#variables#get_sources())`
     " デフォルト: ['file', 'tag', 'neosnippet', 'vim', 'dictionary', 'omni', 'member', 'syntax', 'include', 'buffer', 'file/include']
     let g:neocomplete#sources = {
-        \ '_' : ['vim', 'omni', 'include', 'buffer', 'file/include']
+        \ '_' : ['neosnippet', 'vim', 'omni', 'include', 'buffer', 'file/include']
         \ }
 
     " 特定のタイミングでのみ使う補完は、直接呼び出すようにする
@@ -336,7 +336,7 @@ NeoBundleLazy 'osyo-manga/vim-marching', {
         \ 'depends' : ['Shougo/vimproc.vim', 'osyo-manga/vim-reunions'],
         \ 'autoload' : {'filetypes' : ['c', 'cpp']}
         \ }
-" {{{ neosnippet
+" neosnippet {{{ 
 NeoBundle 'Shougo/neosnippet'
 NeoBundle 'Shougo/neosnippet-snippets'
 " Plugin key-mappings.
@@ -360,6 +360,7 @@ endif
 
 NeoBundle 'Shougo/unite.vim'
 NeoBundle 'Shougo/neomru.vim'
+NeoBundle 'honza/vim-snippets'
 NeoBundle 'thinca/vim-quickrun'
 NeoBundle 'tpope/vim-surround'
 
