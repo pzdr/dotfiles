@@ -26,6 +26,8 @@ set splitright
 set list
 "set listchars=tab:>.,trail:_,eol:\\,extends:>,precedes:<,nbsp:%
 set listchars=tab:\|\ ,trail:_,eol:$,extends:>,precedes:<,nbsp:%
+"set listchars=tab:≫\ ,eol:￢
+set listchars=tab:^\ ,eol:\\,trail:_,extends:>,precedes:<,nbsp:%
 set whichwrap=b,s,h,s,<,>,[,]
 set wildmenu
 set wildmode=list,full
@@ -73,6 +75,10 @@ set matchpairs& matchpairs+=<:> " 対応括弧に'<'と'>'のペアを追加
 set backspace=indent,eol,start " バックスペースでなんでも消せるようにする
 imap <F11> <nop>
 set pastetoggle=<F11>
+" ペースト時に余計な空白を削除
+if has('virtualedit') && &virtualedit =~# '\<all\>'
+    nnoremap <expr> p (col('.') >= col('$') ? '$' : '') . 'p'
+endif
 """
 
 """ mouse
@@ -85,8 +91,22 @@ set nocursorline
 " 挿入モードの時のみ、カーソル行をハイライトする
 autocmd InsertEnter * set cursorline
 autocmd InsertLeave * set nocursorline
+ "全角スペースをハイライト表示
+function! ZenkakuSpace()
+    highlight ZenkakuSpace cterm=reverse ctermfg=DarkMagenta gui=reverse guifg=DarkMagenta
+endfunction
+
+if has('syntax')
+    augroup ZenkakuSpace
+        autocmd!
+        autocmd ColorScheme       * call ZenkakuSpace()
+        autocmd VimEnter,WinEnter * match ZenkakuSpace /　/
+    augroup END
+    call ZenkakuSpace()
+endif
 
 " key mapping
+let mapleader = ","
 inoremap <C-C> <ESC>
 inoremap jj <ESC>
 nmap <silent> <ESC><ESC> :nohlsearch<CR>
@@ -133,15 +153,14 @@ cnoremap <M-b> <S-Left>
 cnoremap <M-f> <S-Right>
 
 if has('unix') || has('macunix') || has('win32unix')
-    noremap ,ev :<C-u>tabnew $HOME/.vimrc<CR>
-    noremap ,rv :<C-u>source $HOME/.vimrc<CR>
+    noremap <silent> <Leader>ev :<C-u>edit $MYVIMRC<CR>
+    noremap <silent> <Leader>rv :<C-u>source $MYVIMRC<CR>
 elseif has('win32') || has('win64')
-    noremap ,ev :<C-u>tabnew $HOME/_vimrc<CR>
-    noremap ,eg :<C-u>tabnew $HOME/_gvimrc<CR>
-    noremap ,rv :<C-u>source $HOME/_vimrc<CR>
+    noremap <silent> <Leader>ev :<C-u>edit $MYGVIMRC<CR>
+    noremap <silent> <Leader>eg :<C-u>edit $MYGVIMRC<CR>
+    noremap <silent> <Leader>rv :<C-u>source $MYGVIMRC<CR>
 endif
 nnoremap <F3> :<C-u>setlocal relativenumber!<CR>
-
 
 let mapleader = ","
 
