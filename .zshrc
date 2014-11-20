@@ -15,18 +15,18 @@ export PAGER='less -R'
 # LANG 設定
 export LANG=ja_JP.UTF-8
 case ${UID} in
-0)
-LANG=C
-;;
+    0)
+        LANG=C
+        ;;
 esac
 # }}}
 #{{{ PATH設定
 if [ -d "$HOME/bin" ] ; then
-	PATH="$HOME/bin:$PATH"
+    PATH="$HOME/bin:$PATH"
 fi
 
 if [ -d "$HOME/bin/scripts" ] ; then
-	PATH="$HOME/bin/scripts:$PATH"
+    PATH="$HOME/bin/scripts:$PATH"
 fi
 # }}}
 #######################################################################################################
@@ -63,14 +63,14 @@ setopt prompt_subst
 
 # プロンプ卜の設定 2 rootとその他で色を変えている
 case ${UID} in
-	0)
-		PROMPT="%{$fg_bold[green]%}%m%{$fg_bold[red]%}#%{$reset_color%} "
-		PROMPT2="%{$fg[magenta]%}%_%{$reset_color%}%{$fg_bold[white]%}>>%{$reset_color%} "
-		;;
-	*)
-		PROMPT="%{$fg_bold[cyan]%}%m%{$fg_bold[white]%}%%%{$reset_color%} "
-		PROMPT2="%{$fg[magenta]%}%_%{$reset_color%}%{$fg_bold[white]%}>>%{$reset_color%} "
-		;;
+    0)
+        PROMPT="%{$fg_bold[green]%}%m%{$fg_bold[red]%}#%{$reset_color%} "
+        PROMPT2="%{$fg[magenta]%}%_%{$reset_color%}%{$fg_bold[white]%}>>%{$reset_color%} "
+        ;;
+    *)
+        PROMPT="%{$fg_bold[cyan]%}%m%{$fg_bold[white]%}%%%{$reset_color%} "
+        PROMPT2="%{$fg[magenta]%}%_%{$reset_color%}%{$fg_bold[white]%}>>%{$reset_color%} "
+        ;;
 esac
 # 右プロンプトに現在地を表示。これのおかげで入力位置がウロウロしない。
 RPROMPT="%{$fg_bold[white]%}[%{$reset_color%}%{$fg[cyan]%}%~%{$reset_color%}%{$fg_bold[white]%}]%{$reset_color%}"
@@ -90,7 +90,7 @@ precmd () { vcs_info }
 RPROMPT=$RPROMPT'${vcs_info_msg_0_}'
 # 'dircolors -p'で出力されるものに手を加えて保存したものを読み込んでる。
 if [ -f ~/.dir_colors ]; then
-	eval `dircolors -b ~/.dir_colors`
+    eval `dircolors -b ~/.dir_colors`
 fi
 
 # コマンドを実行するときに右プロンプトを消す。他の端末等にコピペするときに便利。
@@ -216,8 +216,8 @@ SAVEHIST=100000
 
 # rootは履歴を保存しない。
 if [ $UID = 0 ]; then
-	unset HISTFILE
-	SAVEHIST=0
+    unset HISTFILE
+    SAVEHIST=0
 fi
 
 # 履歴を複数端末間で共有する。
@@ -281,73 +281,76 @@ bindkey "Created" history-beginning-search-forward-end
 ###{{{ alias
 # それぞれの環境に合わせてaliasを設定
 case "${OSTYPE}" in
-	freebsd*|darwin*)
-		alias ls='ls -G'
-		;;
-	linux*)
-		alias ls='ls --color=auto'
-		alias grep='grep --color=auto'
-		;;
-	cygwin*)
-		alias gvim='cygstart D:\\App\\vim74\\gvim.exe'
-                alias ifconfig="cocot ipconfig"
-                alias ping="cocot ping"
-                alias arp="cocot arp"
-                alias nslookup="cocot nslookup"
-                alias traceroute="cocot tracert"
-                alias route="cocot route"
-                alias netstat="cocot netstat"
-		;;
+    freebsd*|darwin*)
+        alias ls='ls -G'
+        ;;
+    linux*)
+        alias ls='ls --color=auto'
+        alias grep='grep --color=auto'
+        ;;
+    cygwin*)
+        alias gvim='cygstart D:\\App\\vim74\\gvim.exe'
+        alias ifconfig="cocot ipconfig"
+        alias ping="cocot ping"
+        alias arp="cocot arp"
+        alias nslookup="cocot nslookup"
+        alias traceroute="cocot tracert"
+        alias route="cocot route"
+        alias netstat="cocot netstat"
+        ;;
+    *)
+        alias tmux="TERM=screen-256color-bce tmux"
+        ;;
 esac
 # case `uname` in
 #     Linux)
 #         alias ls='ls --color=auto'
 #         ;;
 #     Darwin|FreeBSD)
-#         alias ls='ls -GvF'
-#         ;;
-# esac
-alias -g L='| $PAGER'
-alias -g G='| grep'
-alias -g V='| vim -R -'
+    #         alias ls='ls -GvF'
+    #         ;;
+    # esac
+    alias -g L='| $PAGER'
+    alias -g G='| grep'
+    alias -g V='| vim -R -'
 
-alias ll='ls -l'
-alias la='ls -a'
-alias lla='ls -al'
-# alias lla='ls -a -l | lv'
-alias vi=vim
+    alias ll='ls -l'
+    alias la='ls -a'
+    alias lla='ls -al'
+    # alias lla='ls -a -l | lv'
+    alias vi=vim
 
 
-# }}}
-#######################################################################################################
-###{{{ function
-# cdしたらlsするのが癖だから。
-# function cd() {builtin cd $@ && ls -v -F --color=auto}
-# function cd() {builtin cd $@ && ls -v -F }
-# これも、cdしたらlsしてくれるが、こっちのほうがauto_cdの場合でもlsしてくれるのでこっちで。
-# function chpwd() { ls -v -F --color=auto }
-function chpwd() { ls -F }
+    # }}}
+    #######################################################################################################
+    ###{{{ function
+    # cdしたらlsするのが癖だから。
+    # function cd() {builtin cd $@ && ls -v -F --color=auto}
+    # function cd() {builtin cd $@ && ls -v -F }
+    # これも、cdしたらlsしてくれるが、こっちのほうがauto_cdの場合でもlsしてくれるのでこっちで。
+    # function chpwd() { ls -v -F --color=auto }
+    function chpwd() { ls -F }
 
-# 'google ほげほげ'ですぐに検索。
-function google() {
-local str opt
-if [ $ != 0 ]; then
-	for i in $*; do
-	str="$str+$i"
-	done
-	str=`echo $str | sed 's/^\+//'`
-	opt='search?num=50&hl=ja&lr=lang_ja'
-	opt="${opt}&q=${str}"
-fi
-w3m http://www.google.co.jp/$opt
+    # 'google ほげほげ'ですぐに検索。
+    function google() {
+    local str opt
+    if [ $ != 0 ]; then
+        for i in $*; do
+            str="$str+$i"
+        done
+        str=`echo $str | sed 's/^\+//'`
+        opt='search?num=50&hl=ja&lr=lang_ja'
+        opt="${opt}&q=${str}"
+    fi
+    w3m http://www.google.co.jp/$opt
 }
 
 # w3mでALC検索
 function alc() {
 if [ $ != 0 ]; then
-	w3m "http://eow.alc.co.jp/$*/UTF-8/?ref=sa"
+    w3m "http://eow.alc.co.jp/$*/UTF-8/?ref=sa"
 else
-	w3m "http://www.alc.co.jp/"
+    w3m "http://www.alc.co.jp/"
 fi
 }
 
@@ -379,11 +382,11 @@ bindkey '' cdup
 
 # キーバインドがviの時に，ノーマルモードとインサートモードの状態を状況に応じて表示
 readuntil () {
-	typeset a
-	while [ "$a" != "$1" ]
-	do
-		read -E -k 1 a
-	done
+    typeset a
+    while [ "$a" != "$1" ]
+    do
+        read -E -k 1 a
+    done
 }
 
 #
@@ -396,54 +399,54 @@ readuntil () {
 #   lines to move down before printing the mode.  Defaults to zero.
 #
 showmode() {
-	typeset movedown
-	typeset row
+    typeset movedown
+    typeset row
 
-	# Get number of lines down to print mode
-	movedown=$(($(echo "$RBUFFER" | wc -l) + ${1:-0}))
+    # Get number of lines down to print mode
+    movedown=$(($(echo "$RBUFFER" | wc -l) + ${1:-0}))
 
-	# Get current row position
-	echo -n "\e[6n"
-	row="${${$(readuntil R)#*\[}%;*}"
+    # Get current row position
+    echo -n "\e[6n"
+    row="${${$(readuntil R)#*\[}%;*}"
 
-	# Are we at the bottom of the terminal?
-	if [ $((row+movedown)) -gt "$LINES" ]
-	then
-		# Scroll terminal up one line
-		echo -n "\e[1S"
+    # Are we at the bottom of the terminal?
+    if [ $((row+movedown)) -gt "$LINES" ]
+    then
+        # Scroll terminal up one line
+        echo -n "\e[1S"
 
-		# Move cursor up one line
-		echo -n "\e[1A"
-	fi
+        # Move cursor up one line
+        echo -n "\e[1A"
+    fi
 
-	# Save cursor position
-	echo -n "\e[s"
+    # Save cursor position
+    echo -n "\e[s"
 
-	# Move cursor to start of line $movedown lines down
-	echo -n "\e[$movedown;E"
+    # Move cursor to start of line $movedown lines down
+    echo -n "\e[$movedown;E"
 
-	# Change font attributes
-	echo -n "\e[1m"
+    # Change font attributes
+    echo -n "\e[1m"
 
-	# Has a mode been set?
-	if [ -n "$VIMODE" ]
-	then
-		# Print mode line
-		echo -n "-- $VIMODE -- "
-	else
-		# Clear mode line
-		echo -n "\e[0K"
-	fi
+    # Has a mode been set?
+    if [ -n "$VIMODE" ]
+    then
+        # Print mode line
+        echo -n "-- $VIMODE -- "
+    else
+        # Clear mode line
+        echo -n "\e[0K"
+    fi
 
-	# Restore font
-	echo -n "\e[0m"
+    # Restore font
+    echo -n "\e[0m"
 
-	# Restore cursor position
-	echo -n "\e[u"
+    # Restore cursor position
+    echo -n "\e[u"
 }
 
 clearmode() {
-	VIMODE= showmode
+    VIMODE= showmode
 }
 
 #
@@ -457,11 +460,11 @@ clearmode() {
 #   lines to move down before printing the mode.  Defaults to zero.
 #
 makemodal () {
-	# Create new function
-	eval "$1() { zle .'$1'; ${2:+VIMODE='$2'}; showmode $3 }"
+    # Create new function
+    eval "$1() { zle .'$1'; ${2:+VIMODE='$2'}; showmode $3 }"
 
-	# Create new widget
-	zle -N "$1"
+    # Create new widget
+    zle -N "$1"
 }
 
 # Extend widgets
@@ -487,14 +490,14 @@ unfunction makemodal
 # INPUT.txt のうち 10から15行目をクリップボードにコピーする
 # % sed -n '10,15p' INPUT.txt C
 if which pbcopy >/dev/null 2>&1 ; then 
-	# Mac  
-	alias -g C='| pbcopy'
+    # Mac  
+    alias -g C='| pbcopy'
 elif which xsel >/dev/null 2>&1 ; then 
-	# Linux
-	alias -g C='| xsel --input --clipboard'
+    # Linux
+    alias -g C='| xsel --input --clipboard'
 elif which putclip >/dev/null 2>&1 ; then 
-	# Cygwin 
-	alias -g C='| putclip'
+    # Cygwin 
+    alias -g C='| putclip'
 fi
 
 
@@ -544,42 +547,42 @@ fi
 #        fi
 #        ;;
 #    linux*)
-#        if [ $TERM != "screen-bce" ]; then
-#            exec byobu -S main -xRR
-#        fi
-#        ;;
-#esac
-# case "${OSTYPE}" in
-#     freebsd*|darwin*)
-#         if [ $TERM != "screen" ]; then
-#             exec screen -U -D -RR
-#         fi
-#             ;;
+    #        if [ $TERM != "screen-bce" ]; then
+    #            exec byobu -S main -xRR
+    #        fi
+    #        ;;
+    #esac
+    # case "${OSTYPE}" in
+    #     freebsd*|darwin*)
+    #         if [ $TERM != "screen" ]; then
+    #             exec screen -U -D -RR
+    #         fi
+    #             ;;
 #     linux*)
-#         if [ $TERM != "screen-bce" ]; then
-#             exec byobu -U -D -RR
-#         fi
-#             ;;
-# esac
-# }}}
-#######################################################################################################
+    #         if [ $TERM != "screen-bce" ]; then
+    #             exec byobu -U -D -RR
+    #         fi
+    #             ;;
+    # esac
+    # }}}
+    #######################################################################################################
 
-if [ -x /usr/bin/dircolors ]; then
-    test -r ~/cygwin/.dircolors && eval "$(dircolors -b ~/cygwin/.dircolors)" || eval "$(dircolors -b)"
-    #alias dir='dir --color=auto'
-    #alias vdir='vdir --color=auto'
-    alias ls='ls -hF --color=auto'                 # classify files in colour
-    alias dir='ls --color=auto --format=vertical'
-    alias vdir='ls --color=auto --format=long'
- 
-    alias grep='grep --color=auto'
-    alias fgrep='fgrep --color=auto'
-    alias egrep='egrep --color=auto'
-fi
+    if [ -x /usr/bin/dircolors ]; then
+        test -r ~/cygwin/.dircolors && eval "$(dircolors -b ~/cygwin/.dircolors)" || eval "$(dircolors -b)"
+        #alias dir='dir --color=auto'
+        #alias vdir='vdir --color=auto'
+        alias ls='ls -hF --color=auto'                 # classify files in colour
+        alias dir='ls --color=auto --format=vertical'
+        alias vdir='ls --color=auto --format=long'
 
-#{{{ 個人用設定ファイルがあればそれを読み込む
-if [ -e ~/.zshrc_private ]; then
-	source ~/.zshrc_private
-fi
+        alias grep='grep --color=auto'
+        alias fgrep='fgrep --color=auto'
+        alias egrep='egrep --color=auto'
+    fi
 
-# }}}
+    #{{{ 個人用設定ファイルがあればそれを読み込む
+    if [ -e ~/.zshrc_private ]; then
+        source ~/.zshrc_private
+    fi
+
+    # }}}
