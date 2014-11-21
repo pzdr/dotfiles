@@ -287,6 +287,7 @@ case "${OSTYPE}" in
     linux*)
         alias ls='ls --color=auto'
         alias grep='grep --color=auto'
+        alias tmux="TERM=screen-256color-bce tmux"
         ;;
     cygwin*)
         alias gvim='cygstart D:\\App\\vim74\\gvim.exe'
@@ -299,7 +300,6 @@ case "${OSTYPE}" in
         alias netstat="cocot netstat"
         ;;
     *)
-        alias tmux="TERM=screen-256color-bce tmux"
         ;;
 esac
 # case `uname` in
