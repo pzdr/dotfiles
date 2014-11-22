@@ -27,7 +27,6 @@ set list
 "set listchars=tab:>.,trail:_,eol:\\,extends:>,precedes:<,nbsp:%
 set listchars=tab:\|\ ,trail:_,eol:$,extends:>,precedes:<,nbsp:%
 "set listchars=tab:≫\ ,eol:￢
-set listchars=tab:^\ ,eol:\\,trail:_,extends:>,precedes:<,nbsp:%
 set whichwrap=b,s,h,s,<,>,[,]
 set wildmenu
 set wildmode=list,full
@@ -342,6 +341,37 @@ function! s:hooks.on_source(bundle)
 endfunction
 " }}}
 
+NeoBundle 'scrooloose/syntastic'
+let g:syntastic_python_checkers = ['pyflakes', 'pep8']
+
+" original http://stackoverflow.com/questions/12374200/using-uncrustify-with-vim/15513829#15513829
+function! Preserve(command)
+    " Save the last search.
+    let search = @/
+    " Save the current cursor position.
+    let cursor_position = getpos('.')
+    " Save the current window position.
+    normal! H
+    let window_position = getpos('.')
+    call setpos('.', cursor_position)
+    " Execute the command.
+    execute a:command
+    " Restore the last search.
+    let @/ = search
+    " Restore the previous window position.
+    call setpos('.', window_position)
+    normal! zt
+    " Restore the previous cursor position.
+    call setpos('.', cursor_position)
+endfunction
+
+function! Autopep8()
+    call Preserve(':silent %!autopep8 --ignore=E501 -')
+endfunction
+
+" Shift + F で自動修正
+autocmd FileType python nnoremap <S-f> :call Autopep8()<CR>
+
 NeoBundleLazy 'vim-jp/cpp-vim', {
         \ 'autoload' : {'filetypes' : 'cpp'}
         \ }
@@ -385,7 +415,7 @@ NeoBundle 'tpope/vim-surround'
 
 " {{{ vim-indent-guides
 NeoBundle "nathanaelkane/vim-indent-guides"
-let g:indent_guides_enable_on_vim_startup = 1 "2013-06-24 10:00 削除
+let g:indent_guides_enable_on_vim_startup = 1
 let s:hooks = neobundle#get_hooks("vim-indent-guides")
 function! s:hooks.on_source(bundle)
     let g:indent_guides_auto_colors=0
@@ -469,7 +499,10 @@ NeoBundleLazy "lambdalisue/vim-pyenv", {
 
 " git
 NeoBundle 'tpope/vim-fugitive'
-"NeoBundle 'airblade/vim-gitgutter'
+NeoBundle 'airblade/vim-gitgutter'
+let g:gitgutter_sign_added = '✚'
+let g:gitgutter_sign_modified = '➜'
+let g:gitgutter_sign_removed = '✘'
 NeoBundle 'vim-jp/vimdoc-ja'
 NeoBundle 'osyo-manga/vim-over'
 " markdown
@@ -484,14 +517,13 @@ NeoBundle 'cocopon/lightline-hybrid.vim'
 NeoBundle 'vim-scripts/twilight'
 NeoBundle 'jonathanfilip/vim-lucius'
 NeoBundle 'jpo/vim-railscasts-theme'
-"NeoBundle 'altercation/vim-colors-solarized'
+NeoBundle 'altercation/vim-colors-solarized'
 NeoBundle 'vim-scripts/Wombat'
 NeoBundle 'tomasr/molokai'
 NeoBundle 'vim-scripts/rdark'
 NeoBundle 'pasela/edark.vim'
 NeoBundle 'sjl/badwolf'
 NeoBundle 'cocopon/colorswatch.vim'
-
 NeoBundle 'git://github.com/vim-scripts/vimcoder.jar'
 
 call neobundle#end()
@@ -589,19 +621,205 @@ let g:quickrun_config._ = {
 "let g:edark_current_line = 1
 "let g:edark_ime_cursor = 1
 "let g:edark_insert_status_line = 1
-colorscheme hybrid
+let g:solarized_termcolors=256
+set background=dark
+colorscheme solarized
+hi Normal     ctermbg=none     ctermfg=lightgray
+hi Comment    ctermfg=darkgray
+hi LineNr     ctermbg=none     ctermfg=darkgray
+hi SpecialKey ctermbg=none     ctermfg=black
+hi FoldColumn ctermbg=none     ctermfg=darkgreen
 """
 
 """ for lightline.vim
 let g:lightline = {
-        \ 'colorscheme': 'hybrid',
-        \ 'component': {
-        \   'readonly': '%{&readonly?"\u2b64":""}',
-        \ },
-        \ 'separator': { 'left': "\u2b80", 'right': "\u2b82" },
-        \ 'subseparator': { 'left': "\u2b81", 'right': "\u2b83" },
-        \ }
-"let g:lightline_hybrid_style = "plain"
+      \ 'colorscheme': 'solarized',
+      \ 'active': {
+      \   'left': [ [ 'mode', 'paste' ], [ 'fugitive', 'gitgutter', 'filename' ], ['ctrlpmark'] ],
+      \   'right': [ [ 'syntastic', 'lineinfo' ], ['percent'], [ 'charcode', 'fileformat', 'fileencoding', 'filetype' ] ]
+      \ },
+      \ 'component_function': {
+      \   'fugitive': 'MyFugitive',
+      \   'filename': 'MyFilename',
+      \   'fileformat': 'MyFileformat',
+      \   'filetype': 'MyFiletype',
+      \   'fileencoding': 'MyFileencoding',
+      \   'mode': 'MyMode',
+      \   'charcode': 'MyCharCode',
+      \   'gitgutter': 'MyGitGutter',
+      \   'ctrlpmark': 'CtrlPMark',
+      \ },
+      \ 'component_expand': {
+      \   'syntastic': 'SyntasticStatuslineFlag',
+      \ },
+      \ 'component_type': {
+      \   'syntastic': 'error',
+      \ },
+      \ 'separator': { 'left': "\u2b80", 'right': "\u2b82" },
+      \ 'subseparator': { 'left': "\u2b81", 'right': "\u2b83" },
+      \ }
+
+function! MyModified()
+  return &ft =~ 'help' ? '' : &modified ? '+' : &modifiable ? '' : '-'
+endfunction
+
+function! MyReadonly()
+  return &ft !~? 'help' && &readonly ? "\u2b64" : ''
+endfunction
+
+function! MyFilename()
+  let fname = expand('%:t')
+  return fname == 'ControlP' ? g:lightline.ctrlp_item :
+        \ fname == '__Tagbar__' ? g:lightline.fname :
+        \ fname =~ '__Gundo\|NERD_tree' ? '' :
+        \ &ft == 'vimfiler' ? vimfiler#get_status_string() :
+        \ &ft == 'unite' ? unite#get_status_string() :
+        \ &ft == 'vimshell' ? vimshell#get_status_string() :
+        \ ('' != MyReadonly() ? MyReadonly() . ' ' : '') .
+        \ ('' != fname ? fname : '[No Name]') .
+        \ ('' != MyModified() ? ' ' . MyModified() : '')
+endfunction
+
+function! MyFugitive()
+  try
+    if expand('%:t') !~? 'Tagbar\|Gundo\|NERD' && &ft !~? 'vimfiler' && exists('*fugitive#head')
+      let mark = "\u2b60 "  " edit here for cool mark
+      let _ = fugitive#head()
+      return strlen(_) ? mark._ : ''
+    endif
+  catch
+  endtry
+  return ''
+endfunction
+
+function! MyFileformat()
+  return winwidth(0) > 70 ? &fileformat : ''
+endfunction
+
+function! MyFiletype()
+  return winwidth(0) > 70 ? (strlen(&filetype) ? &filetype : 'no ft') : ''
+endfunction
+
+function! MyFileencoding()
+  return winwidth(0) > 70 ? (strlen(&fenc) ? &fenc : &enc) : ''
+endfunction
+
+function! MyGitGutter()
+    if ! exists('*GitGutterGetHunkSummary')
+                \ || ! get(g:, 'gitgutter_enabled', 0)
+                \ || winwidth('.') <= 90
+        return ''
+    endif
+    let symbols = [
+                \ g:gitgutter_sign_added . ' ',
+                \ g:gitgutter_sign_modified . ' ',
+                \ g:gitgutter_sign_removed . ' '
+                \ ]
+    let hunks = GitGutterGetHunkSummary()
+    let ret = []
+    for i in [0, 1, 2]
+        if hunks[i] > 0
+            call add(ret, symbols[i] . hunks[i])
+        endif
+    endfor
+    return join(ret, ' ')
+endfunction
+
+" https://github.com/Lokaltog/vim-powerline/blob/develop/autoload/Powerline/Functions.vim
+function! MyCharCode()
+  if winwidth('.') <= 70
+    return ''
+  endif
+
+  " Get the output of :ascii
+  redir => ascii
+  silent! ascii
+  redir END
+
+  if match(ascii, 'NUL') != -1
+    return 'NUL'
+  endif
+
+  " Zero pad hex values
+  let nrformat = '0x%02x'
+
+  let encoding = (&fenc == '' ? &enc : &fenc)
+
+  if encoding == 'utf-8'
+    " Zero pad with 4 zeroes in unicode files
+    let nrformat = '0x%04x'
+  endif
+
+  " Get the character and the numeric value from the return value of :ascii
+  " This matches the two first pieces of the return value, e.g.
+  " "<F>  70" => char: 'F', nr: '70'
+  let [str, char, nr; rest] = matchlist(ascii, '\v\<(.{-1,})\>\s*([0-9]+)')
+
+  " Format the numeric value
+  let nr = printf(nrformat, nr)
+
+  return "'". char ."' ". nr
+endfunction
+
+function! MyMode()
+  let fname = expand('%:t')
+  return fname == '__Tagbar__' ? 'Tagbar' :
+        \ fname == 'ControlP' ? 'CtrlP' :
+        \ fname == '__Gundo__' ? 'Gundo' :
+        \ fname == '__Gundo_Preview__' ? 'Gundo Preview' :
+        \ fname =~ 'NERD_tree' ? 'NERDTree' :
+        \ &ft == 'unite' ? 'Unite' :
+        \ &ft == 'vimfiler' ? 'VimFiler' :
+        \ &ft == 'vimshell' ? 'VimShell' :
+        \ winwidth(0) > 60 ? lightline#mode() : ''
+endfunction
+
+function! CtrlPMark()
+  if expand('%:t') =~ 'ControlP'
+    call lightline#link('iR'[g:lightline.ctrlp_regex])
+    return lightline#concatenate([g:lightline.ctrlp_prev, g:lightline.ctrlp_item
+          \ , g:lightline.ctrlp_next], 0)
+  else
+    return ''
+  endif
+endfunction
+
+let g:ctrlp_status_func = {
+  \ 'main': 'CtrlPStatusFunc_1',
+  \ 'prog': 'CtrlPStatusFunc_2',
+  \ }
+
+function! CtrlPStatusFunc_1(focus, byfname, regex, prev, item, next, marked)
+  let g:lightline.ctrlp_regex = a:regex
+  let g:lightline.ctrlp_prev = a:prev
+  let g:lightline.ctrlp_item = a:item
+  let g:lightline.ctrlp_next = a:next
+  return lightline#statusline(0)
+endfunction
+
+function! CtrlPStatusFunc_2(str)
+  return lightline#statusline(0)
+endfunction
+
+let g:tagbar_status_func = 'TagbarStatusFunc'
+
+function! TagbarStatusFunc(current, sort, fname, ...) abort
+    let g:lightline.fname = a:fname
+  return lightline#statusline(0)
+endfunction
+
+augroup AutoSyntastic
+  autocmd!
+  autocmd BufWritePost *.c,*.cpp call s:syntastic()
+augroup END
+function! s:syntastic()
+  SyntasticCheck
+  call lightline#update()
+endfunction
+
+let g:unite_force_overwrite_statusline = 0
+let g:vimfiler_force_overwrite_statusline = 0
+let g:vimshell_force_overwrite_statusline = 0
 """
 
 """ markdown
