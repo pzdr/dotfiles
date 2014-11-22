@@ -105,9 +105,10 @@ endif
 
 " key mapping
 let mapleader = ","
-inoremap <C-C> <ESC>
+inoremap <C-b> <Left>
+inoremap <C-f> <Right>
 inoremap jj <ESC>
-nmap <silent> <ESC><ESC> :nohlsearch<CR>
+nnoremap <silent> <C-c> :nohlsearch<CR>
 noremap <Space>h  ^
 noremap <Space>l  $
 nnoremap <Space>/  *<C-o>
@@ -499,9 +500,6 @@ NeoBundleLazy "lambdalisue/vim-pyenv", {
 " git
 NeoBundle 'tpope/vim-fugitive'
 NeoBundle 'airblade/vim-gitgutter'
-let g:gitgutter_sign_added = '✚'
-let g:gitgutter_sign_modified = '➜'
-let g:gitgutter_sign_removed = '✘'
 NeoBundle 'vim-jp/vimdoc-ja'
 NeoBundle 'osyo-manga/vim-over'
 " markdown
@@ -621,12 +619,13 @@ let g:quickrun_config._ = {
 "let g:edark_ime_cursor = 1
 "let g:edark_insert_status_line = 1
 let g:solarized_termcolors=256
+let g:solarized_termtrans=1
 set background=dark
 colorscheme solarized
 hi Normal     ctermbg=none     ctermfg=lightgray
 hi Comment    ctermfg=darkgray
 hi LineNr     ctermbg=none     ctermfg=darkgray
-hi SpecialKey ctermbg=none     ctermfg=black
+hi SpecialKey ctermbg=none     ctermfg=darkgrey
 hi FoldColumn ctermbg=none     ctermfg=darkgreen
 """
 
@@ -636,6 +635,9 @@ let g:lightline = {
       \ 'active': {
       \   'left': [ [ 'mode', 'paste' ], [ 'fugitive', 'gitgutter', 'filename' ], ['ctrlpmark'] ],
       \   'right': [ [ 'syntastic', 'lineinfo' ], ['percent'], [ 'charcode', 'fileformat', 'fileencoding', 'filetype' ] ]
+      \ },
+      \ 'component': {
+      \   'lineinfo': "\u2b61 %3l:%-2v",
       \ },
       \ 'component_function': {
       \   'fugitive': 'MyFugitive',
@@ -704,6 +706,9 @@ function! MyFileencoding()
 endfunction
 
 function! MyGitGutter()
+    let g:gitgutter_sign_added = '✚'
+    let g:gitgutter_sign_modified = '➜'
+    let g:gitgutter_sign_removed = '✘'
     if ! exists('*GitGutterGetHunkSummary')
                 \ || ! get(g:, 'gitgutter_enabled', 0)
                 \ || winwidth('.') <= 90
