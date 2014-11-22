@@ -26,7 +26,6 @@ set splitright
 set list
 "set listchars=tab:>.,trail:_,eol:\\,extends:>,precedes:<,nbsp:%
 set listchars=tab:\|\ ,trail:_,eol:$,extends:>,precedes:<,nbsp:%
-"set listchars=tab:≫\ ,eol:￢
 set whichwrap=b,s,h,s,<,>,[,]
 set wildmenu
 set wildmode=list,full
