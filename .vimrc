@@ -49,11 +49,9 @@ let g:my.conf = {
       \ 'initialize': 1
       \ }
 let g:my.info = {
-      \ 'author':  'Ishii Hiroyuki',
-      \ 'email':   'alpaca-tc@alpaca.tc',
-      \ 'github':  'alpaca-tc',
-      \ 'lingr':   'alpaca_taichou',
-      \ 'twitter': 'alpaca_taichou'
+      \ 'author':  'Suzuki Tatsuya',
+      \ 'email':   'pzdr123456@gmail.com',
+      \ 'github':  'pzdr',
       \ }
 let g:my.bin = {
       \ 'ctags' : '/usr/local/bin/ctags',
