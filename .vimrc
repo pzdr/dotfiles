@@ -111,7 +111,7 @@ set splitright
 scriptencoding utf-8
 set encoding=utf-8
 set fileencoding=utf-8
-set fileencodings=iso-2022-jp,utf-8,euc-jp,ucs-2le,ucs-2,cp932
+set fileencodings=utf-8,iso-2022-jp,euc-jp,ucs-2le,ucs-2,cp932
 "set title
 "set listchars=tab:>.,trail:_,eol:\\,extends:>,precedes:<,nbsp:%
 "set listchars=tab:\|\ ,trail:_,eol:￢,extends:>,precedes:<,nbsp:%
@@ -244,6 +244,10 @@ cnoremap <C-p> <Up>
 cnoremap <C-n> <Down>
 cnoremap <M-b> <S-Left>
 cnoremap <M-f> <S-Right> 
+" make, grep などのコマンド後に自動的にQuickFixを開く
+autocmd MyAutoCmd QuickfixCmdPost make,grep,grepadd,vimgrep copen
+" QuickFixおよびHelpでは q でバッファを閉じる
+autocmd MyAutoCmd FileType help,qf nnoremap <buffer> q <C-w>c
 
 if has('unix') || has('macunix') || has('win32unix')
   noremap <silent> <Leader>ev :<C-u>edit $MYVIMRC<CR>
@@ -601,7 +605,7 @@ function! s:hooks.on_source(bundle)
   " quickrunと被るため大文字に変更
   let g:jedi#rename_command = '<Leader>R'
   " gundoと被るため大文字に変更 (2013-06-24 10:00 追記）
-  let g:jedi#goto_command = '<Leader>G'
+  "let g:jedi#goto_command = '<Leader>G'
 endfunction
 
 autocmd FileType python setlocal omnifunc=jedi#completions
@@ -615,6 +619,11 @@ endif
 " let g:neocomplete#force_omni_input_patterns.python = '\%([^. \t]\.\|^\s*@\|^\s*from\s.\+import \|^\s*from \|^\s*import \)\w*'
 let g:neocomplete#force_omni_input_patterns.python = '\h\w*\|[^. \t]\.\w*'
 " }}}
+
+"{{{ vim-python-pep8-indent
+NeoBundleLazy 'hynek/vim-python-pep8-indent', {
+    \ "autoload": {"insert": 1, "filetypes": ["python", "python3", "djangohtml"]}}
+"}}}
 
 " {{{ vim-pyenv
 " pyenv 処理用に vim-pyenv を追加
@@ -634,8 +643,28 @@ let g:gitgutter_sign_modified = '➜'
 let g:gitgutter_sign_removed = '✘'
 NeoBundle 'vim-jp/vimdoc-ja'
 NeoBundle 'osyo-manga/vim-over'
-" markdown
-NeoBundle 'rcmdnk/vim-markdown'
+" Markdown syntax
+NeoBundle "godlygeek/tabular"
+NeoBundle "joker1007/vim-markdown-quote-syntax"
+NeoBundle "rcmdnk/vim-markdown"
+let g:vim_markdown_liquid=1
+let g:vim_markdown_frontmatter=1
+let g:vim_markdown_math=1
+au BufRead,BufNewFile *.{txt,text} set filetype=markdown
+let g:markdown_fenced_languages = [
+      \  'coffee',
+      \  'css',
+      \  'erb=eruby',
+      \  'javascript',
+      \  'js=javascript',
+      \  'json=javascript',
+      \  'cpp',
+      \  'ruby',
+      \  'python',
+      \  'bash=sh',
+      \  'sass',
+      \  'xml',
+      \]
 NeoBundle 'tyru/open-browser.vim'
 NeoBundle 'kannokanno/previm'
 NeoBundle 'h1mesuke/vim-alignta'
@@ -985,12 +1014,12 @@ augroup MyColorScheme
   "hi Normal     ctermbg=none     ctermfg=lightgray
   "hi Comment    ctermfg=darkgray
   "hi LineNr     ctermbg=none     ctermfg=darkgray
-  autocmd ColorScheme * hi SpecialKey ctermbg=none ctermfg=12
-  autocmd ColorScheme * hi NonText ctermbg=none ctermfg=12
+  "autocmd ColorScheme * hi SpecialKey ctermbg=none ctermfg=12
+  "autocmd ColorScheme * hi NonText ctermbg=none ctermfg=12
   autocmd ColorScheme * hi FoldColumn ctermbg=none ctermfg=darkgreen
   autocmd ColorScheme * hi Folded ctermbg=none ctermfg=lightgreen
 augroup END
-colorscheme iceberg
+colorscheme molokai
 syntax on
 " }}}
 
