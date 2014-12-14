@@ -93,7 +93,6 @@ let g:my.ft = {
 
 set runtimepath^=$HOME/.vim
 set runtimepath+=$HOME/.vim/after
-set shellslash
 set t_Co=256
 
 """ show
@@ -112,32 +111,28 @@ scriptencoding utf-8
 set encoding=utf-8
 set fileencoding=utf-8
 set fileencodings=utf-8,iso-2022-jp,euc-jp,ucs-2le,ucs-2,cp932
-"set title
-"set listchars=tab:>.,trail:_,eol:\\,extends:>,precedes:<,nbsp:%
-"set listchars=tab:\|\ ,trail:_,eol:￢,extends:>,precedes:<,nbsp:%
-let &listchars="eol:\u21b5,tab:\|\ ,trail:_,extends:\u00bb,precedes:\u00ab,nbsp:\u00d7"
+" set title
+" let &listchars=tab:>.,trail:_,eol:\\,extends:>,precedes:<,nbsp:%
+" let &listchars=tab:\|\ ,trail:_,eol:￢,extends:>,precedes:<,nbsp:%
+" let &listchars="eol:\u21b5,tab:\|\ ,trail:_,extends:\u00bb,precedes:\u00ab,nbsp:\u00d7"
+let &listchars="tab:\|\ ,extends:\u00bb,precedes:\u00ab,nbsp:\u00d7"
 "let &listchars="eol:\u00b6"
 set list
 set whichwrap=b,s,h,s,<,>,[,]
 set wildmenu
-set wildmode=list,full
+set wildmode=longest,list,full
 set smartindent
 set foldmethod=marker
+set lazyredraw
+set timeout timeoutlen=1000 ttimeoutlen=75
 "set ambiwidth=double
 
-"全角スペースをハイライト表示
-function! ZenkakuSpace()
-  highlight ZenkakuSpace cterm=reverse ctermfg=DarkMagenta gui=reverse guifg=DarkMagenta
-endfunction
-
-if has('syntax')
-  augroup ZenkakuSpace
-    autocmd! 
-    autocmd ColorScheme * call ZenkakuSpace()
-    autocmd VimEnter,WinEnter * match ZenkakuSpace /　/
-  augroup END
-  call ZenkakuSpace()
-endif
+augroup highlightSpaces
+    autocmd!
+    autocmd ColorScheme * hi ExtraWhiteSpace ctermbg=darkgrey guibg=lightgreen
+    autocmd ColorScheme * hi ZenkakuSpace ctermbg=white guibg=white
+    autocmd VimEnter,WinEnter,Bufread * call s:syntax_additional()
+augroup END
 
 """ search
 set ignorecase
@@ -164,6 +159,12 @@ set showmatch           " 対応する括弧などをハイライト表示する
 set matchtime=3         " 対応括弧のハイライト表示を3秒にする
 set matchpairs& matchpairs+=<:> " 対応括弧に'<'と'>'のペアを追加
 set backspace=indent,eol,start " バックスペースでなんでも消せるようにする
+set spelllang=en_gb,cjk
+set helplang=en
+set smarttab
+set smartindent
+set history=255
+set nrformats& nrformats-=octal nrformats+=alpha
 imap <F11> <nop>
 set pastetoggle=<F11>
 " ペースト時に余計な空白を削除
@@ -182,19 +183,6 @@ set nocursorline
 " 挿入モードの時のみ、カーソル行をハイライトする
 autocmd InsertEnter * set cursorline
 autocmd InsertLeave * set nocursorline
-"全角スペースをハイライト表示
-function! ZenkakuSpace()
-  highlight ZenkakuSpace cterm=reverse ctermfg=DarkMagenta gui=reverse guifg=DarkMagenta
-endfunction
-
-if has('syntax')
-  augroup ZenkakuSpace
-    autocmd!
-    autocmd ColorScheme       * call ZenkakuSpace()
-    autocmd VimEnter,WinEnter * match ZenkakuSpace /　/
-  augroup END
-  call ZenkakuSpace()
-endif
 
 " key mapping
 let mapleader = ","
@@ -252,14 +240,15 @@ autocmd MyAutoCmd QuickfixCmdPost make,grep,grepadd,vimgrep copen
 autocmd MyAutoCmd FileType help,qf nnoremap <buffer> q <C-w>c
 
 if has('unix') || has('macunix') || has('win32unix')
-  noremap <silent> <Leader>ev :<C-u>edit $MYVIMRC<CR>
+  noremap <silent> <Leader>ev :<C-u>tabedit $MYVIMRC<CR>
   noremap <silent> <Leader>rv :<C-u>source $MYVIMRC<CR>
 elseif has('win32') || has('win64')
-  noremap <silent> <Leader>ev :<C-u>edit $MYGVIMRC<CR>
-  noremap <silent> <Leader>eg :<C-u>edit $MYGVIMRC<CR>
+  noremap <silent> <Leader>ev :<C-u>tabedit $MYGVIMRC<CR>
+  noremap <silent> <Leader>eg :<C-u>tabedit $MYGVIMRC<CR>
   noremap <silent> <Leader>rv :<C-u>source $MYGVIMRC<CR>
 endif
 nnoremap <F3> :<C-u>setlocal relativenumber!<CR>
+nnoremap <special> <Esc>[Z :<C-u>tabn<CR>
 
 " Initialize Neobundle {{{
 filetype plugin indent off
@@ -404,6 +393,13 @@ function! s:hooks.on_source(bundle)
 endfunction
 " }}}
 
+" Neobundle tcommnet_vim "{{{
+NeoBundle 'tomtom/tcomment_vim', { 'autoload' : {
+      \ 'commands' : ['TComment', 'TCommentAs', 'TCommentMaybeInline'],
+      \ 'functions' : ['tcomment#DefineType'],
+      \ }}
+"}}}
+
 " {{{ syntastic
 NeoBundle 'scrooloose/syntastic'
 let g:syntastic_python_checkers = ['pyflakes', 'pep8']
@@ -437,20 +433,32 @@ endfunction
 autocmd FileType python nnoremap <S-f> :call Autopep8()<CR>
 " }}} syntastic
 
+" NeoBundleLazy cpp-vim "{{{
 NeoBundleLazy 'vim-jp/cpp-vim', {
       \ 'autoload' : {'filetypes' : 'cpp'}
       \ }
+"}}}
+
+" NeobundleLazy clang_complete "{{{
 "NeoBundleLazy 'Rip-Rip/clang_complete', {
 "        \ 'autoload' : {'filetypes' : ['c', 'cpp']}
 "        \ }
+"}}}
+
+" NeoBundleLazy vim-clang-format "{{{
 NeoBundleLazy 'rhysd/vim-clang-format', {
       \ 'autoload' : {'filetypes' : ['c', 'cpp', 'objc']}
       \ }
+"}}}
+
+" NeobundleLazy vim-marching "{{{
 NeoBundleLazy 'osyo-manga/vim-marching', {
       \ 'depends' : ['Shougo/vimproc.vim', 'osyo-manga/vim-reunions'],
       \ 'autoload' : {'filetypes' : ['c', 'cpp']}
       \ }
-" neosnippet {{{ 
+"}}}
+
+" NeoBundle neosnippet {{{ 
 NeoBundle 'Shougo/neosnippet'
 NeoBundle 'Shougo/neosnippet-snippets'
 " Plugin key-mappings.
@@ -530,6 +538,7 @@ unlet hooks
 NeoBundleLazy 'junegunn/vim-easy-align', { 'autoload': {
       \ 'commands' : ['EasyAlign'] }}
 
+" indentLine or vim-indent-guides {{{
 if has('conceal')
   NeoBundleLazy 'Yggdroot/indentLine', { 'autoload' : {
         \   'commands' : ['IndentLinesReset', 'IndentLinesToggle'],
@@ -550,7 +559,6 @@ if has('conceal')
       set conceallevel=2
   endfunction"}}}
   unlet hooks
-
 else
   NeoBundleLazy 'nathanaelkane/vim-indent-guides', {
         \ 'autoload': {
@@ -560,7 +568,8 @@ else
   autocmd VimEnter,Colorscheme * :hi IndentGuidesOdd   ctermbg=235
   autocmd VimEnter,Colorscheme * :hi IndentGuidesEven  ctermbg=240
 endif
-
+"}}}
+"
 " {{{ gundo
 NeoBundleLazy "sjl/gundo.vim", {
       \ "autoload": {
@@ -577,7 +586,10 @@ NeoBundleLazy 'majutsushi/tagbar', {
       \ "build": {
       \   "mac": "brew install ctags",
       \ }}
-nmap <Leader>t :TagbarToggle<CR>
+if !empty(neobundle#get("tagbar"))
+  let g:tagbar_width = 25
+  nnoremap <Leader>t :TagbarToggle<CR>
+endif
 " }}}
 
 " {{{ vim-django-support
@@ -691,6 +703,15 @@ call neobundle#end()
 filetype plugin indent on
 """
 
+" Plugin settings
+" ------------------------------------
+" t_comment
+" ------------------------------------
+let g:tcommentMaps = 0
+"nmap <C-_> :TComment<CR>
+"xmap <C-_> :TComment<CR>
+nnoremap <C-_> :TComment<CR>
+xnoremap <C-_> :TComment<CR>
 
 """ vim-over
 cnoreabb <silent><expr>s getcmdtype()==':' && getcmdline()=~'^s' ? 'OverCommandLine<CR><C-u>%s/<C-r>=get([], getchar(0), '')<CR>' : 's'
@@ -770,7 +791,7 @@ let g:quickrun_config._ = {
 
 " {{{ lightline.vim
 let g:lightline = {
-      \ 'colorscheme': 'landscape',
+      \ 'colorscheme': 'hybrid',
       \ 'active': {
       \   'left': [ [ 'mode', 'paste' ], [ 'fugitive', 'gitgutter', 'filename' ], ['ctrlpmark'] ],
       \   'right': [ [ 'syntastic', 'lineinfo' ], ['percent'], [ 'charcode', 'fileformat', 'fileencoding', 'filetype' ] ]
@@ -1003,14 +1024,13 @@ augroup BinaryXXD
 augroup END
 "}}}
 
-" {{{ ### colorscheme
+" colorscheme " {{{ 
 "let g:edark_current_line = 1
 "let g:edark_ime_cursor = 1
 "let g:edark_insert_status_line = 1
-"let g:solarized_termcolors=256
-"let g:solarized_termtrans=1
-"set background=dark
-"colorscheme solarized
+" let g:solarized_termcolors=256
+" let g:solarized_termtrans=1
+" set background=dark
 augroup MyColorScheme
   autocmd!
   "hi Normal     ctermbg=none     ctermfg=lightgray
@@ -1018,11 +1038,32 @@ augroup MyColorScheme
   "hi LineNr     ctermbg=none     ctermfg=darkgray
   "autocmd ColorScheme * hi SpecialKey ctermbg=none ctermfg=12
   "autocmd ColorScheme * hi NonText ctermbg=none ctermfg=12
-  autocmd ColorScheme * hi FoldColumn ctermbg=none ctermfg=darkgreen
-  autocmd ColorScheme * hi Folded ctermbg=none ctermfg=lightgreen
+  autocmd ColorScheme * hi FoldColumn ctermbg=none ctermfg=darkgray
+  autocmd ColorScheme * hi Folded ctermbg=none ctermfg=darkgray
 augroup END
-colorscheme molokai
-syntax on
+" colorscheme solarized
+colorscheme iceberg
+syntax enable
 " }}}
+
+" My Functions
+function! s:syntax_additional()
+    let preset = exists('w:syntax_additional')
+    if &l:list
+        if !preset
+            " http://vimwiki.net/?faq%2F4
+            let w:syntax_additional = [
+            \ matchadd('ZenkakuSpace', '　',0),
+            \ matchadd('ExtraWhiteSpace', '\S\+\zs\s\+\ze$',0),
+            \ ]
+        endif
+    elseif preset
+        for added in w:syntax_additional
+            call matchdelete(added)
+        endfor
+        unlet added
+        unlet w:syntax_additional
+    endif
+endfunction
 
 "source ~/encode.vim
