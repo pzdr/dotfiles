@@ -115,7 +115,7 @@ set fileencodings=utf-8,iso-2022-jp,euc-jp,ucs-2le,ucs-2,cp932
 " let &listchars=tab:>.,trail:_,eol:\\,extends:>,precedes:<,nbsp:%
 " let &listchars=tab:\|\ ,trail:_,eol:￢,extends:>,precedes:<,nbsp:%
 " let &listchars="eol:\u21b5,tab:\|\ ,trail:_,extends:\u00bb,precedes:\u00ab,nbsp:\u00d7"
-let &listchars="tab:\|\ ,extends:\u00bb,precedes:\u00ab,nbsp:\u00d7"
+" let &listchars="tab:\|\ ,extends:\u00bb,precedes:\u00ab,nbsp:\u00d7"
 "let &listchars="eol:\u00b6"
 set list
 set whichwrap=b,s,h,s,<,>,[,]
@@ -123,9 +123,9 @@ set wildmenu
 set wildmode=longest,list,full
 set smartindent
 set foldmethod=marker
-set lazyredraw
+" set lazyredraw
 set timeout timeoutlen=1000 ttimeoutlen=75
-"set ambiwidth=double
+set ambiwidth=double
 
 augroup highlightSpaces
     autocmd!
@@ -496,6 +496,7 @@ nnoremap <silent> ,ub :<C-u>Unite buffer<CR>
 nnoremap <silent> ,uf :<C-u>UniteWithBufferDir -buffer-name=files file<CR>
 nnoremap <silent> ,ur :<C-u>Unite -buffer-name=register register<CR>
 nnoremap <silent> ,uu :<C-u>Unite file_mru buffer<CR>
+nnoremap <silent> ,uc :<C-u>Unite colorscheme -auto-preview<CR>
 " }}}
 
 NeoBundle 'Shougo/neomru.vim'
@@ -652,9 +653,9 @@ NeoBundleLazy "lambdalisue/vim-pyenv", {
 " git
 NeoBundle 'tpope/vim-fugitive'
 NeoBundle 'airblade/vim-gitgutter'
-let g:gitgutter_sign_added = '✚'
-let g:gitgutter_sign_modified = '➜'
-let g:gitgutter_sign_removed = '✘'
+" let g:gitgutter_sign_added = '✚'
+" let g:gitgutter_sign_modified = '➜'
+" let g:gitgutter_sign_removed = '✘'
 NeoBundle 'vim-jp/vimdoc-ja'
 NeoBundle 'osyo-manga/vim-over'
 " Markdown syntax
@@ -683,6 +684,7 @@ NeoBundle 'tyru/open-browser.vim'
 NeoBundle 'kannokanno/previm'
 NeoBundle 'h1mesuke/vim-alignta'
 " colorscheme
+NeoBundle 'ujihisa/unite-colorscheme'
 NeoBundle 'nanotech/jellybeans.vim'
 NeoBundle 'w0ng/vim-hybrid'
 NeoBundle 'cocopon/lightline-hybrid.vim'
@@ -791,7 +793,7 @@ let g:quickrun_config._ = {
 
 " {{{ lightline.vim
 let g:lightline = {
-      \ 'colorscheme': 'hybrid',
+      \ 'colorscheme': 'wombat',
       \ 'active': {
       \   'left': [ [ 'mode', 'paste' ], [ 'fugitive', 'gitgutter', 'filename' ], ['ctrlpmark'] ],
       \   'right': [ [ 'syntastic', 'lineinfo' ], ['percent'], [ 'charcode', 'fileformat', 'fileencoding', 'filetype' ] ]
@@ -1025,24 +1027,24 @@ augroup END
 "}}}
 
 " colorscheme " {{{ 
-"let g:edark_current_line = 1
-"let g:edark_ime_cursor = 1
-"let g:edark_insert_status_line = 1
+" let g:edark_current_line = 1
+" let g:edark_ime_cursor = 1
+" let g:edark_insert_status_line = 1
 " let g:solarized_termcolors=256
 " let g:solarized_termtrans=1
 " set background=dark
 augroup MyColorScheme
   autocmd!
-  "hi Normal     ctermbg=none     ctermfg=lightgray
-  "hi Comment    ctermfg=darkgray
-  "hi LineNr     ctermbg=none     ctermfg=darkgray
-  "autocmd ColorScheme * hi SpecialKey ctermbg=none ctermfg=12
-  "autocmd ColorScheme * hi NonText ctermbg=none ctermfg=12
+  hi Normal     ctermbg=none     ctermfg=lightgray
+  hi Comment    ctermfg=darkgray
+  hi LineNr     ctermbg=none     ctermfg=darkgray
+  autocmd ColorScheme * hi SpecialKey ctermbg=none ctermfg=12
+  autocmd ColorScheme * hi NonText ctermbg=none ctermfg=12
   autocmd ColorScheme * hi FoldColumn ctermbg=none ctermfg=darkgray
   autocmd ColorScheme * hi Folded ctermbg=none ctermfg=darkgray
 augroup END
 " colorscheme solarized
-colorscheme iceberg
+colorscheme hybrid
 syntax enable
 " }}}
 
