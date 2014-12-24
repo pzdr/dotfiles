@@ -1043,9 +1043,9 @@ augroup MyColorScheme
   autocmd ColorScheme * hi FoldColumn ctermbg=none ctermfg=darkgray
   autocmd ColorScheme * hi Folded ctermbg=none ctermfg=darkgray
 augroup END
-" colorscheme solarized
-colorscheme hybrid
 syntax enable
+" colorscheme solarized
+colorscheme iceberg
 " }}}
 
 " My Functions

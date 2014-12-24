@@ -287,7 +287,7 @@ case "${OSTYPE}" in
     linux*)
         alias ls='ls --color=auto'
         alias grep='grep --color=auto'
-        alias tmux="TERM=screen-256color-bce tmux"
+        alias tmux="TERM=xterm-256color tmux"
         ;;
     cygwin*)
         alias gvim='cygstart D:\\App\\vim74\\gvim.exe'
@@ -586,3 +586,5 @@ fi
     fi
 
     # }}}
+export PATH="$HOME/.anyenv/bin:$PATH"
+eval "$(anyenv init -)"
