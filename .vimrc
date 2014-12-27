@@ -123,7 +123,7 @@ set wildmenu
 set wildmode=longest,list,full
 set smartindent
 set foldmethod=marker
-" set lazyredraw
+set lazyredraw
 set timeout timeoutlen=1000 ttimeoutlen=75
 set ambiwidth=double
 
@@ -132,6 +132,11 @@ augroup highlightSpaces
     autocmd ColorScheme * hi ExtraWhiteSpace ctermbg=darkgrey guibg=lightgreen
     autocmd ColorScheme * hi ZenkakuSpace ctermbg=white guibg=white
     autocmd VimEnter,WinEnter,Bufread * call s:syntax_additional()
+augroup END
+
+augroup nopaste
+  autocmd!
+  autocmd InsertLeave * set nopaste
 augroup END
 
 """ search
@@ -1027,9 +1032,9 @@ augroup END
 "}}}
 
 " colorscheme " {{{ 
-" let g:edark_current_line = 1
-" let g:edark_ime_cursor = 1
-" let g:edark_insert_status_line = 1
+let g:edark_current_line = 1
+let g:edark_ime_cursor = 1
+let g:edark_insert_status_line = 1
 " let g:solarized_termcolors=256
 " let g:solarized_termtrans=1
 " set background=dark
@@ -1045,7 +1050,7 @@ augroup MyColorScheme
 augroup END
 syntax enable
 " colorscheme solarized
-colorscheme iceberg
+colorscheme edark
 " }}}
 
 " My Functions
