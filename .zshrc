@@ -3,6 +3,7 @@
 ## 基本設定 {{{
 # http://yuyunko.hatenablog.com/entry/20101112/1289551129
 
+export EDITOR=vim
 export PATH="/usr/local/arm-tools/bin:$PATH"
 WORDCHARS='*?_-.[]~=&;!#$%^(){}<>'
 
@@ -586,5 +587,20 @@ fi
     fi
 
     # }}}
-export PATH="$HOME/.anyenv/bin:$PATH"
-eval "$(anyenv init -)"
+
+# environment
+export PATH="$HOME/local/bin:$PATH"
+
+# anyenv
+if [ -d ${HOME}/.anyenv ] ; then
+  export PATH="$HOME/.anyenv/bin:$PATH"
+  eval "$(anyenv init -)"
+  for D in `ls $HOME/.anyenv/envs`
+  do
+    export PATH="$HOME/.anyenv/envs/$D/shims:$PATH"
+  done
+fi
+# pyenv
+export PYTHON_CONFIGURE_OPTS="--enable-shared"
+# rbenv
+export RUBY_CONFIGURE_OPTS="--enable-shared"

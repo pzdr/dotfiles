@@ -117,7 +117,7 @@ set fileencodings=utf-8,iso-2022-jp,euc-jp,ucs-2le,ucs-2,cp932
 " let &listchars="eol:\u21b5,tab:\|\ ,trail:_,extends:\u00bb,precedes:\u00ab,nbsp:\u00d7"
 " let &listchars="tab:\|\ ,extends:\u00bb,precedes:\u00ab,nbsp:\u00d7"
 "let &listchars="eol:\u00b6"
-set list
+" set list
 set whichwrap=b,s,h,s,<,>,[,]
 set wildmenu
 set wildmode=longest,list,full
@@ -129,7 +129,7 @@ set ambiwidth=double
 
 augroup highlightSpaces
     autocmd!
-    autocmd ColorScheme * hi ExtraWhiteSpace ctermbg=darkgrey guibg=lightgreen
+    " autocmd ColorScheme * hi ExtraWhiteSpace ctermbg=darkgrey guibg=lightgreen
     autocmd ColorScheme * hi ZenkakuSpace ctermbg=white guibg=white
     autocmd VimEnter,WinEnter,Bufread * call s:syntax_additional()
 augroup END
@@ -259,6 +259,18 @@ nnoremap <special> <Esc>[Z :<C-u>tabn<CR>
 filetype plugin indent off
 "let g:neobundle#types#git#default_protocol = 'https'
 let g:neobundle#install_max_processes = 30
+
+if ! isdirectory(expand(g:my.dir.neobundle))
+  echon 'Installing neobundle...'
+  silent call mkdir(expand(g:my.dir.neobundle), 'p')
+  silent !git clone https://github.com/Shougo/neobundle.vim $HOME/.vim/bundle/neobundle.vim
+  echo 'done.'
+  if v:shell_error
+    echoerr 'neobundle.vom installationhas failed!'
+    finish
+  endif
+endif
+
 if s:on_init()
   set nocompatible
   execute 'set runtimepath+=' . g:my.dir.neobundle . '/neobundle.vim'
@@ -458,7 +470,7 @@ NeoBundleLazy 'rhysd/vim-clang-format', {
 
 " NeobundleLazy vim-marching "{{{
 NeoBundleLazy 'osyo-manga/vim-marching', {
-      \ 'depends' : ['Shougo/vimproc.vim', 'osyo-manga/vim-reunions'],
+      \ 'depends' : ['Shougo/vimproc', 'osyo-manga/vim-reunions'],
       \ 'autoload' : {'filetypes' : ['c', 'cpp']}
       \ }
 "}}}
@@ -1032,12 +1044,12 @@ augroup END
 "}}}
 
 " colorscheme " {{{ 
-let g:edark_current_line = 1
-let g:edark_ime_cursor = 1
-let g:edark_insert_status_line = 1
-" let g:solarized_termcolors=256
-" let g:solarized_termtrans=1
-" set background=dark
+" let g:edark_current_line = 1
+" let g:edark_ime_cursor = 1
+" let g:edark_insert_status_line = 1
+let g:solarized_termcolors=256
+let g:solarized_termtrans=1
+set background=dark
 augroup MyColorScheme
   autocmd!
   hi Normal     ctermbg=none     ctermfg=lightgray
@@ -1049,8 +1061,8 @@ augroup MyColorScheme
   autocmd ColorScheme * hi Folded ctermbg=none ctermfg=darkgray
 augroup END
 syntax enable
-" colorscheme solarized
-colorscheme edark
+colorscheme solarized
+" colorscheme edark
 " }}}
 
 " My Functions
@@ -1061,8 +1073,9 @@ function! s:syntax_additional()
             " http://vimwiki.net/?faq%2F4
             let w:syntax_additional = [
             \ matchadd('ZenkakuSpace', '　',0),
-            \ matchadd('ExtraWhiteSpace', '\S\+\zs\s\+\ze$',0),
             \ ]
+            " \ matchadd('ExtraWhiteSpace', '\S\+\zs\s\+\ze$',0),
+            " \ ]
         endif
     elseif preset
         for added in w:syntax_additional
@@ -1072,5 +1085,38 @@ function! s:syntax_additional()
         unlet w:syntax_additional
     endif
 endfunction
+
+" setlocal
+augroup setIndent
+  autocmd!
+  " これらのftではインデントを無効に
+  "autocmd FileType php filetype indent off
+  autocmd FileType apache     setlocal sw=4 sts=4 ts=4 et
+  autocmd FileType aspvbs     setlocal sw=4 sts=4 ts=4 et
+  autocmd FileType c          setlocal sw=4 sts=4 ts=4 et
+  autocmd FileType cpp        setlocal sw=4 sts=4 ts=4 et
+  autocmd FileType cs         setlocal sw=4 sts=4 ts=4 et
+  autocmd FileType css        setlocal sw=2 sts=2 ts=2 et
+  autocmd FileType diff       setlocal sw=4 sts=4 ts=4 et
+  autocmd FileType eruby      setlocal sw=4 sts=4 ts=4 et
+  autocmd FileType html       setlocal sw=2 sts=2 ts=2 et
+  autocmd FileType java       setlocal sw=4 sts=4 ts=4 et
+  autocmd FileType javascript setlocal sw=2 sts=2 ts=2 et
+  autocmd FileType perl       setlocal sw=4 sts=4 ts=4 et
+  autocmd FileType php        setlocal sw=4 sts=4 ts=4 et
+  autocmd FileType python     setlocal sw=4 sts=4 ts=4 et
+  autocmd FileType ruby       setlocal sw=2 sts=2 ts=2 et
+  autocmd FileType haml       setlocal sw=2 sts=2 ts=2 et
+  autocmd FileType sh         setlocal sw=4 sts=4 ts=4 et
+  autocmd FileType sql        setlocal sw=4 sts=4 ts=4 et
+  autocmd FileType vb         setlocal sw=4 sts=4 ts=4 et
+  autocmd FileType vim        setlocal sw=2 sts=2 ts=2 et
+  autocmd FileType wsh        setlocal sw=4 sts=4 ts=4 et
+  autocmd FileType xhtml      setlocal sw=4 sts=4 ts=4 et
+  autocmd FileType xml        setlocal sw=4 sts=4 ts=4 et
+  autocmd FileType yaml       setlocal sw=2 sts=2 ts=2 et
+  autocmd FileType zsh        setlocal sw=4 sts=4 ts=4 et
+  autocmd FileType scala      setlocal sw=2 sts=2 ts=2 et
+augroup END
 
 "source ~/encode.vim
