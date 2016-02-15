@@ -248,9 +248,9 @@ if has('unix') || has('macunix') || has('win32unix')
   noremap <silent> <Leader>ev :<C-u>tabedit $MYVIMRC<CR>
   noremap <silent> <Leader>rv :<C-u>source $MYVIMRC<CR>
 elseif has('win32') || has('win64')
-  noremap <silent> <Leader>ev :<C-u>tabedit $MYGVIMRC<CR>
+  noremap <silent> <Leader>ev :<C-u>tabedit $MYVIMRC<CR>
   noremap <silent> <Leader>eg :<C-u>tabedit $MYGVIMRC<CR>
-  noremap <silent> <Leader>rv :<C-u>source $MYGVIMRC<CR>
+  noremap <silent> <Leader>rv :<C-u>source $MYVIMRC<CR>
 endif
 nnoremap <F3> :<C-u>setlocal relativenumber!<CR>
 nnoremap <special> <Esc>[Z :<C-u>tabn<CR>
@@ -290,6 +290,8 @@ NeoBundleLazy 'Shougo/vimproc', {
       \   'function_prefix' : 'vimproc',
       \ },
       \ 'build' : {
+      \   'windows' : 'make -f make_mingw32.mak',
+      \   'cygwin' : 'make -f make_cygwin.mak',
       \   'mac' : 'make -f make_mac.mak',
       \   'unix' : 'make -f make_unix.mak',
       \ }}
@@ -501,12 +503,13 @@ endif
 NeoBundleLazy 'Shougo/unite.vim', {
             \ 'autoload' : {'commands' : [ 'unite' ]}
             \ }
-let hooks = neobundle#get('unite.vim')
+let hooks = neobundle#get_hooks('unite.vim')
 function! hooks.on_source(bundle)
-    let g:unite_enable_start_insert=1
-    let g:unite_source_history_yank_enable =1
+    let g:unite_enable_start_insert = 1
+    let g:unite_source_history_yank_enable = 1
     let g:unite_source_file_mru_limit = 200
 endfunction
+unlet hooks
 
 nnoremap <silent> ,uy :<C-u>Unite history/yank<CR>
 nnoremap <silent> ,ub :<C-u>Unite buffer<CR>
@@ -604,7 +607,7 @@ NeoBundleLazy 'majutsushi/tagbar', {
       \ "build": {
       \   "mac": "brew install ctags",
       \ }}
-if !empty(neobundle#get("tagbar"))
+if !empty(neobundle#get_hooks("tagbar"))
   let g:tagbar_width = 25
   nnoremap <Leader>t :TagbarToggle<CR>
 endif
@@ -716,7 +719,7 @@ NeoBundle 'vim-scripts/rdark'
 NeoBundle 'pasela/edark.vim'
 NeoBundle 'sjl/badwolf'
 NeoBundle 'cocopon/colorswatch.vim'
-NeoBundle 'git://github.com/vim-scripts/vimcoder.jar'
+NeoBundle 'vim-scripts/vimcoder.jar'
 
 call neobundle#end()
 filetype plugin indent on
